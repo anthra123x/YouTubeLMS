@@ -21,13 +21,14 @@ class GoogleServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
-         // Fetch Stripe settings from the database
-         $googleConfig = Google::first();
-         if ($googleConfig) {
-             Config::set('services.google.client_id', $googleConfig->client_id);
-             Config::set('services.google.client_secret', $googleConfig->secret_key);
-         }
-
-
+        try {
+            $googleConfig = Google::first();
+            if ($googleConfig) {
+                Config::set('services.google.client_id', $googleConfig->client_id);
+                Config::set('services.google.client_secret', $googleConfig->secret_key);
+            }
+        } catch (\Throwable) {
+            // BD no lista (instalación, migrate, sqlite inexistente, etc.)
+        }
     }
 }

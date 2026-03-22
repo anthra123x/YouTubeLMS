@@ -1,66 +1,87 @@
-<p align="center"><a href="https://laravel.com" target="_blank"><img src="https://raw.githubusercontent.com/laravel/art/master/logo-lockup/5%20SVG/2%20CMYK/1%20Full%20Color/laravel-logolockup-cmyk-red.svg" width="400" alt="Laravel Logo"></a></p>
+````md
+# YouTube LMS (Laravel)
 
-<p align="center">
-<a href="https://github.com/laravel/framework/actions"><img src="https://github.com/laravel/framework/workflows/tests/badge.svg" alt="Build Status"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/dt/laravel/framework" alt="Total Downloads"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/v/laravel/framework" alt="Latest Stable Version"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/l/laravel/framework" alt="License"></a>
-</p>
+Aplicación web tipo **LMS** (cursos, carrito, checkout con Stripe, paneles de administrador e instructor, usuarios) construida con **Laravel 11**, **Vite**, **Tailwind** y **Alpine.js**. El front público usa plantillas HTML con assets en `public/frontend/`; el panel usa assets en `public/backend/`.
 
-## About Laravel
+## Requisitos
 
-Laravel is a web application framework with expressive, elegant syntax. We believe development must be an enjoyable and creative experience to be truly fulfilling. Laravel takes the pain out of development by easing common tasks used in many web projects, such as:
+- PHP **8.2+** (extensiones típicas: `openssl`, `pdo`, `mbstring`, `tokenizer`, `xml`, `ctype`, `json`, `fileinfo`, `curl` y, según la base de datos, `pdo_sqlite` y/o `pdo_mysql`)
+- **Composer** 2.x
+- **Node.js** LTS y **npm**
+- Base de datos: **SQLite** (desarrollo rápido) o **MySQL/MariaDB** (producción habitual)
 
-- [Simple, fast routing engine](https://laravel.com/docs/routing).
-- [Powerful dependency injection container](https://laravel.com/docs/container).
-- Multiple back-ends for [session](https://laravel.com/docs/session) and [cache](https://laravel.com/docs/cache) storage.
-- Expressive, intuitive [database ORM](https://laravel.com/docs/eloquent).
-- Database agnostic [schema migrations](https://laravel.com/docs/migrations).
-- [Robust background job processing](https://laravel.com/docs/queues).
-- [Real-time event broadcasting](https://laravel.com/docs/broadcasting).
+## Instalación (Linux / macOS)
 
-Laravel is accessible, powerful, and provides tools required for large, robust applications.
+```bash
+git clone <url-de-tu-repo>.git
+cd YouTubeLMS
+composer install
+npm install
+cp .env.example .env
+php artisan key:generate
+````
 
-## Learning Laravel
+Configura la base de datos en `.env`:
 
-Laravel has the most extensive and thorough [documentation](https://laravel.com/docs) and video tutorial library of all modern web application frameworks, making it a breeze to get started with the framework.
+* **SQLite:** deja `DB_CONNECTION=sqlite` y asegúrate de que exista el archivo `database/database.sqlite` (puede ser un archivo vacío antes de migrar).
+* **MySQL:** define `DB_CONNECTION=mysql`, `DB_HOST`, `DB_PORT`, `DB_DATABASE`, `DB_USERNAME`, `DB_PASSWORD` y crea la base vacía.
 
-You may also try the [Laravel Bootcamp](https://bootcamp.laravel.com), where you will be guided through building a modern Laravel application from scratch.
+Luego:
 
-If you don't feel like reading, [Laracasts](https://laracasts.com) can help. Laracasts contains thousands of video tutorials on a range of topics including Laravel, modern PHP, unit testing, and JavaScript. Boost your skills by digging into our comprehensive video library.
+```bash
+php artisan migrate
+php artisan storage:link   # si usas subidas a storage/app/public
+```
 
-## Laravel Sponsors
+## Arranque en desarrollo
 
-We would like to extend our thanks to the following sponsors for funding Laravel development. If you are interested in becoming a sponsor, please visit the [Laravel Partners program](https://partners.laravel.com).
+El script `composer dev` levanta tres procesos: servidor PHP, worker de colas y Vite.
 
-### Premium Partners
+```bash
+composer run dev
+```
 
-- **[Vehikl](https://vehikl.com/)**
-- **[Tighten Co.](https://tighten.co)**
-- **[WebReinvent](https://webreinvent.com/)**
-- **[Kirschbaum Development Group](https://kirschbaumdevelopment.com)**
-- **[64 Robots](https://64robots.com)**
-- **[Curotec](https://www.curotec.com/services/technologies/laravel/)**
-- **[Cyber-Duck](https://cyber-duck.co.uk)**
-- **[DevSquad](https://devsquad.com/hire-laravel-developers)**
-- **[Jump24](https://jump24.co.uk)**
-- **[Redberry](https://redberry.international/laravel/)**
-- **[Active Logic](https://activelogic.com)**
-- **[byte5](https://byte5.de)**
-- **[OP.GG](https://op.gg)**
+Abre la aplicación en `http://127.0.0.1:8000` (o el puerto que indique `php artisan serve`).
 
-## Contributing
+Vite suele mostrar `http://localhost:5173`; en desarrollo con Laravel sirve los assets con *hot reload*. La aplicación se usa en el puerto `8000`, no solo en el `5173`.
 
-Thank you for considering contributing to the Laravel framework! The contribution guide can be found in the [Laravel documentation](https://laravel.com/docs/contributions).
+Si usas `.env.local` (por ejemplo con `APP_ENV=local`), debe contener el mismo `APP_KEY` que `.env`, o el servidor de desarrollo puede fallar con error de cifrado. Alternativa:
 
-## Code of Conduct
+```bash
+php artisan serve --no-reload
+```
 
-In order to ensure that the Laravel community is welcoming to all, please review and abide by the [Code of Conduct](https://laravel.com/docs/contributions#code-of-conduct).
+(comportamiento distinto del entorno del subproceso).
 
-## Security Vulnerabilities
+## Windows (PowerShell o CMD)
 
-If you discover a security vulnerability within Laravel, please send an e-mail to Taylor Otwell via [taylor@laravel.com](mailto:taylor@laravel.com). All security vulnerabilities will be promptly addressed.
+Mismos pasos, con rutas adecuadas. Ejemplo:
 
-## License
+```bash
+cd C:\ruta\YouTubeLMS
+composer install
+npm install
+copy .env.example .env
+php artisan key:generate
+php artisan migrate
+composer run dev
+```
 
-The Laravel framework is open-sourced software licensed under the [MIT license](https://opensource.org/licenses/MIT).
+Requisitos: PHP y Composer en el `PATH` (XAMPP/Laragon/instalación manual). En algunos entornos hace falta habilitar extensiones en `php.ini` (`extension=pdo_sqlite`, `extension=pdo_mysql`, etc.).
+
+## Variables de entorno opcionales
+
+* **Stripe:** `STRIPE_TEST_PK`, `STRIPE_TEST_SK` (y configuración en panel admin).
+* **Google OAuth:** `GOOGLE_CLIENT_ID`, `GOOGLE_CLIENT_SECRET`, `GOOGLE_CALLBACK_REDIRECTS`.
+* **Colas:** con `QUEUE_CONNECTION=database` debe existir la tabla `jobs` (incluida en migraciones).
+
+## Comandos útiles
+
+| Comando                     | Uso                                    |
+| --------------------------- | -------------------------------------- |
+| php artisan serve           | Solo servidor web                      |
+| php artisan queue:listen    | Procesar jobs en segundo plano         |
+| npm run dev / npm run build | Assets Vite en desarrollo / producción |
+| php artisan migrate         | Aplicar migraciones                    |
+
+
